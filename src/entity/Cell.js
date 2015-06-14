@@ -169,8 +169,12 @@ Cell.prototype.calcMove = function(x2, y2, gameServer) {
     // Collision check for other cells
     for (var i = 0; i < this.owner.cells.length;i++) {
         var cell = this.owner.cells[i];
-        if (cell.speedModifier > 0) {cell.speedModifier--;}
-        else if (cell.speedModifier < 0) {cell.speedModifier++;}
+        if (cell.speedModifier > 0) {
+            cell.speedModifier--;
+        }
+        else if (cell.speedModifier < 0) {
+            cell.speedModifier++;
+        }
 		
         if ((this.nodeId == cell.nodeId) || (this.ignoreCollision)) {
             continue;
