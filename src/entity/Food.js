@@ -2,7 +2,8 @@ var Cell = require('./Cell');
 
 function Food() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-		this.mass = Math.floor(Math.random()*4)+1;
+    config = Array.prototype.slice.call(arguments)[4].config
+	this.mass = Math.floor(Math.random() * (config.foodMassMax - config.foodMassMin)) + config.foodMassMin
     this.cellType = 1;
 }
 
