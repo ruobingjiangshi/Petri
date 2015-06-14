@@ -37,7 +37,7 @@ function GameServer() {
         serverMaxConnections: 64, // Maximum amount of connections to the server. 
         serverPort: 443, // Server port
         serverGamemode: 0, // Gamemode, 0 = FFA, 1 = Teams
-        serverBots: 0, // Amount of player bots to spawn (Experimental)
+        serverBots: 10, // Amount of player bots to spawn (Experimental)
         serverViewBase: 1024, // Base view distance of players. Warning: high values may cause lag
         borderLeft: 0, // Left border of map (Vanilla value: 0)
         borderRight: 6000, // Right border of map (Vanilla value: 11180.3398875)
@@ -55,7 +55,7 @@ function GameServer() {
         ejectMass: 16, // Mass of ejected cells
         ejectMassGain: 12, // Amount of mass gained from consuming ejected cells
         ejectSpeed: 160, // Base speed of ejected cells
-        ejectSpawnPlayer: 50, // Chance for a player to spawn from ejected mass
+        ejectSpawnPlayer: 70, // Chance for a player to spawn from ejected mass
         playerStartMass: 10, // Starting mass of the player cell.
         playerMaxMass: 22500, // Maximum mass a player can have
         playerMinMassEject: 32, // Mass required to eject a cell
@@ -510,6 +510,7 @@ GameServer.prototype.ejectMass = function(client) {
         
         // Remove mass from parent cell
         cell.mass -= this.config.ejectMass;
+        if (cell.speedModifier < 0) {cell.speedModifier = Math.min(0, cell.speedModifier+40);}
         
         // Randomize angle
         angle += (Math.random() * .5) - .25;
@@ -603,6 +604,9 @@ GameServer.prototype.getCellsInRange = function(cell) {
                 continue;
             case 2: // Virus
                 multiplier = 1.33;
+                break;
+            case 3: // Ejection
+                multiplier = 1;
                 break;
             case 0: // Players
                 multiplier = check.owner == cell.owner ? 1.00 : multiplier;

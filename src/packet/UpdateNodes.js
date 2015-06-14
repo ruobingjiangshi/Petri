@@ -51,16 +51,18 @@ UpdateNodes.prototype.build = function() {
         if (typeof node == "undefined") {
             continue;
         }
-        
+
+        nodeColor = node.getColor();
+
         var v = node.getType() == 2 ? 1: 0; // Virus flag
         
         view.setUint32(offset, node.nodeId, true); // Node ID
         view.setUint16(offset + 4, node.position.x, true); // X position
         view.setUint16(offset + 6, node.position.y, true); // Y position
         view.setUint16(offset + 8, node.getSize(), true); // Mass formula: Radius (size) = (mass * mass) / 100
-        view.setUint8(offset + 10, node.color.r, true); // Color (R)
-        view.setUint8(offset + 11, node.color.g, true); // Color (G)
-        view.setUint8(offset + 12, node.color.b, true); // Color (B)
+        view.setUint8(offset + 10, nodeColor.r, true); // Color (R)
+        view.setUint8(offset + 11, nodeColor.g, true); // Color (G)
+        view.setUint8(offset + 12, nodeColor.b, true); // Color (B)
         view.setUint8(offset + 13, v, true); // Flags
         offset += 14;
         

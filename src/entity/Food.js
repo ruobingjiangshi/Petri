@@ -2,12 +2,18 @@ var Cell = require('./Cell');
 
 function Food() {
     Cell.apply(this, Array.prototype.slice.call(arguments));
-	
+		this.mass = Math.floor(Math.random()*4)+1;
     this.cellType = 1;
 }
 
 module.exports = Food;
 Food.prototype = new Cell();
+
+Food.prototype.setColor = function(color) {
+    this.color.r = Math.min(color.r*1.5, 255);
+    this.color.b = Math.min(color.b*1.5, 255);
+    this.color.g = Math.min(color.g*1.5, 255);
+}
 
 Food.prototype.calcMove = function () {
     // Food has no need to move
@@ -21,5 +27,5 @@ Food.prototype.calcMovePhys = function () {
 
 Food.prototype.onConsume = function(consumer,gameServer) {
     gameServer.currentFood--;
-    consumer.addMass(gameServer.config.foodMass);
+    consumer.addMass(this.mass);
 }

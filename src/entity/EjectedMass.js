@@ -26,6 +26,7 @@ EjectedMass.prototype.onRemove = function(gameServer) {
 EjectedMass.prototype.onConsume = function(consumer,gameServer) {
     // Adds mass to consumer
     consumer.addMass(gameServer.config.ejectMassGain);
+    consumer.speedModifier -= 40;
 }
 
 EjectedMass.prototype.moveDone = function(gameServer) {

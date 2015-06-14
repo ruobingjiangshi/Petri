@@ -5,6 +5,8 @@ function Cell(nodeId, owner, position, mass, gameServer) {
     this.position = position;
     this.mass = mass; // Starting mass of the cell
     this.cellType = -1; // 0 = Player Cell, 1 = Food, 2 = Virus, 3 = Ejected Mass
+
+    this.speedModifier = 0;
     
     this.killedBy; // Cell that ate this cell
     this.recombineTicks = 0; // Ticks until the cell can recombine with other cells 
@@ -39,7 +41,20 @@ Cell.prototype.setColor = function(color) {
     this.color.g = color.g;
 }
 
+colorExceptions = {
+    "wire":     {'r':  84, 'g':  50, 'b':  15},
+    "ninja":    {'r':   0, 'g':   0, 'b':   0},
+    "light":    {'r': 255, 'g': 255, 'b': 255},
+    "grey goo": {'r': 127, 'g': 127, 'b': 127}
+}
+
 Cell.prototype.getColor = function() {
+    if (this.owner) {
+        if (this.owner.name.toLowerCase() in colorExceptions) {
+            this.setColor(colorExceptions[this.owner.name.toLowerCase()]);
+            this.owner.setColor(colorExceptions[this.owner.name.toLowerCase()]);
+        }
+    }
     return this.color;
 }
 
@@ -60,7 +75,8 @@ Cell.prototype.getSpeed = function() {
 	// Old formula: 5 + (20 * (1 - (this.mass/(70+this.mass))));
 	// Based on 50ms ticks. If updateMoveEngine interval changes, change 50 to new value
 	// (should possibly have a config value for this?)
-	return 745.28 * Math.pow(this.mass, -0.222) * 50 / 1000;
+    var speed = this.speedModifier < 0 ? Math.min(1.5/(this.speedModifier*-0.1), 1) : 1;
+	return 745.28 * Math.pow(this.mass, -0.222) * speed * 50 / 1000;
 }
 
 Cell.prototype.setAngle = function(radians) {
@@ -135,6 +151,8 @@ Cell.prototype.visibleCheck = function(box,centerPos) {
 
 Cell.prototype.calcMove = function(x2, y2, gameServer) {
 	var config = gameServer.config;
+
+
 	
     // Get angle
     var deltaY = y2 - this.position.y;
@@ -151,6 +169,8 @@ Cell.prototype.calcMove = function(x2, y2, gameServer) {
     // Collision check for other cells
     for (var i = 0; i < this.owner.cells.length;i++) {
         var cell = this.owner.cells[i];
+        if (cell.speedModifier > 0) {cell.speedModifier--;}
+        else if (cell.speedModifier < 0) {cell.speedModifier++;}
 		
         if ((this.nodeId == cell.nodeId) || (this.ignoreCollision)) {
             continue;
