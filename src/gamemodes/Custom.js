@@ -3,7 +3,7 @@ var Mode = require('./Mode');
 function Custom() {
     Mode.apply(this, Array.prototype.slice.call(arguments));
 	
-    this.ID = 3;
+    this.ID = 4;
     this.name = "Custom";
 }
 
