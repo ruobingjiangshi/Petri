@@ -3,7 +3,8 @@ var Packet = require('./packet');
 function PacketHandler(gameServer, socket) {
     this.gameServer = gameServer;
     this.socket = socket;
-    
+
+    this.pressQ = false;
     this.pressW = false;
     this.pressSpace = false;
 }
@@ -31,7 +32,8 @@ PacketHandler.prototype.handleMessage = function(message) {
         case 0:
             // Set Nickname
             var nick = "";
-            for (var i = 1; i < view.byteLength; i += 2) {
+            var maxLen = this.gameServer.config.playerMaxNickLength * 2; // 2 bytes per char
+            for (var i = 1; i < view.byteLength && i <= maxLen; i += 2) {
                 var charCode = view.getUint16(i, true);
                 if (charCode == 0) {
                     break;
@@ -45,6 +47,7 @@ PacketHandler.prototype.handleMessage = function(message) {
             // Spectate mode
             if (this.socket.playerTracker.cells.length <= 0) {
                 // Make sure client has no cells
+                this.gameServer.switchSpectator(this.socket.playerTracker);
                 this.socket.playerTracker.spectate = true;
             }
             break;
@@ -54,11 +57,18 @@ PacketHandler.prototype.handleMessage = function(message) {
             client.mouse.x = view.getFloat64(1, true);
             client.mouse.y = view.getFloat64(9, true);
             break;
-		case 17: 
+        case 17:
             // Space Press - Split cell
             this.pressSpace = true;
             break;
-        case 21: 
+        case 18:
+            // Q Key Pressed
+            this.pressQ = true;
+            break;
+        case 19:
+            // Q Key Released
+            break;
+        case 21:
             // W Press - Eject mass
             this.pressW = true;
             break;
@@ -70,17 +80,17 @@ PacketHandler.prototype.handleMessage = function(message) {
         default:
             break;
     }
-}
+};
 
 PacketHandler.prototype.setNickname = function(newNick) {
     var client = this.socket.playerTracker;
     if (client.cells.length < 1) {
         // If client has no cells... then spawn a player
-        this.gameServer.spawnPlayer(client);
-        
+        this.gameServer.gameMode.onPlayerSpawn(this.gameServer,client);
+
         // Turn off spectate mode
         client.spectate = false;
     }
-	client.setName(newNick);
-}
+client.setName(newNick);
+};
 

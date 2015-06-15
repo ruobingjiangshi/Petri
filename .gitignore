@@ -31,3 +31,7 @@ node_modules
 *.project
 
 gameserver.ini
+
+src/.settings/.jsdtscope
+src/.settings/org.eclipse.wst.jsdt.ui.superType.container
+src/.settings/org.eclipse.wst.jsdt.ui.superType.name
