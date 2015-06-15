@@ -75,9 +75,9 @@ Cell.prototype.getSpeed = function(gameServer) {
 	// Old formula: 5 + (20 * (1 - (this.mass/(70+this.mass))));
 	// Based on 50ms ticks. If updateMoveEngine interval changes, change 50 to new value
 	// (should possibly have a config value for this?)
-    var speedmult = -gameServer.gameMode.cellSpeedMultiplier;
+    var speedmult = gameServer.gameMode.cellSpeedMultiplier;
     var speedmin = gameServer.gameMode.cellSpeedLowest;
-    var speed = this.speedModifier < 0 ? Math.max(Math.min(1.5/(this.speedModifier*speedmult), 1), speedmin) : 1;
+    var speed = this.speedModifier > 0 ? Math.max(Math.min(1.5/(this.speedModifier*speedmult), 1), speedmin) : 1;
 	return 745.28 * Math.pow(this.mass, -0.222) * speed * 50 / 1000;
 }
 
@@ -173,9 +173,6 @@ Cell.prototype.calcMove = function(x2, y2, gameServer) {
         var cell = this.owner.cells[i];
         if (cell.speedModifier > 0) {
             cell.speedModifier--;
-        }
-        else if (cell.speedModifier < 0) {
-            cell.speedModifier++;
         }
 		
         if ((this.nodeId == cell.nodeId) || (this.ignoreCollision)) {

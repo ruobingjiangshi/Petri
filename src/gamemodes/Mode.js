@@ -7,6 +7,8 @@ function Mode() {
     
     this.cellSpeedLowest = 0.1; // The lowest possible ejections can lower speed. If it's set to 1, ejections will not slow players.
     this.cellSpeedMultiplier = 0.1; // Lower
+    this.ejectionBurden = 40; // How long an ejection will slow you for (in 50ms ticks)
+    this.ejectionBurdenRelease = 20; // How long firing an ejection will take off your slowness (in 50ms ticks)
 
     this.rankOne; // Current player that has the highest score
 }

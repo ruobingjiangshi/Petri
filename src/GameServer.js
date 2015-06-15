@@ -511,7 +511,9 @@ GameServer.prototype.ejectMass = function(client) {
         
         // Remove mass from parent cell
         cell.mass -= this.config.ejectMass;
-        if (cell.speedModifier < 0) {cell.speedModifier = Math.min(0, cell.speedModifier+40);}
+        if (cell.speedModifier > 0) {
+            cell.speedModifier = Math.max(0, cell.speedModifier-this.gameMode.ejectionBurdenRelease);
+        }
         
         // Randomize angle
         angle += (Math.random() * .5) - .25;
