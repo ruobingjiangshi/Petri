@@ -501,7 +501,7 @@ GameServer.prototype.splitCells = function(client) {
             y: cell.position.y + ( (size + this.config.ejectMass) * Math.cos(angle) )
         };
         // Calculate mass and speed of splitting cell
-        var splitSpeed = 30 + (cell.getSpeed() * 5);
+        var splitSpeed = 30 + (cell.getSpeed(this) * 5);
         var newMass = cell.mass / 2;
         cell.mass = newMass;
         // Create cell

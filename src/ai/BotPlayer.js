@@ -126,7 +126,7 @@ BotPlayer.prototype.update = function() { // Overrides the update function from 
                 this.food.push(check);
                 break;
             case 2: // Virus
-            	if (this.getDist(this.findNearest(check, this.cells), check) > 50) {
+            	if (this.getDist(this.findNearest(check, this.cells), check) > 20) {
         			this.predators.push(check);
         		}
                 this.virus.push(check);

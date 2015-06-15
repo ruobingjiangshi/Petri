@@ -39,7 +39,7 @@ BotLoader.prototype.loadNames = function() {
     var fs = require("fs"); // Import the util library
 	
     // Read and parse the names
-    this.randomNames = fs.readFileSync("./botnames.txt", "utf8").split('\r\n');
+    this.randomNames = fs.readFileSync("./botnames.txt", "utf8").split('\n');
 };
 
 
