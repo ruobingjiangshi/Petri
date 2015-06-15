@@ -623,6 +623,9 @@ GameServer.prototype.getCellsInRange = function(cell) {
                         continue;
                     }
                 }
+                if (check.mass == 0) {
+                    continue;
+                }
                 break;
             default: 
                 break;

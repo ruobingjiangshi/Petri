@@ -83,7 +83,7 @@ BotPlayer.prototype.update = function() { // Overrides the update function from 
         }
 		
         var t = check.getType();
-        if (t == 0) {
+        if (t == 0 && check.mass) {
             // Cannot target teammates
             if (this.gameServer.gameMode.haveTeams) {
                 if (check.owner.team == this.team) {
@@ -235,7 +235,7 @@ BotPlayer.prototype.findNearest = function(cell,list) {
 	var shortestDist = this.getDist(cell,shortest);
 	for (i = 1; i < list.length; i++) {
 		var check = list[i];
-		var dist = this.getDist(cell,check)
+		var dist = this.getDist(cell,check); 
 		if (shortestDist > dist) {
 			shortest = check;
 			shortestDist = dist;

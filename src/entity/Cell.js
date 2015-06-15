@@ -75,9 +75,12 @@ Cell.prototype.getSpeed = function(gameServer) {
 	// Old formula: 5 + (20 * (1 - (this.mass/(70+this.mass))));
 	// Based on 50ms ticks. If updateMoveEngine interval changes, change 50 to new value
 	// (should possibly have a config value for this?)
+    if (!this.mass) {
+        return 745.28 * 50 / 1000
+    }
     var speedmult = gameServer.gameMode.cellSpeedMultiplier;
     var speedmin = gameServer.gameMode.cellSpeedLowest;
-    var speed = this.speedModifier > 0 ? Math.max(Math.min(1.5/(this.speedModifier*speedmult), 1), speedmin) : 1;
+    var speed = this.speedModifier > 0 ? Math.max(Math.min( 1.5 / (this.speedModifier * speedmult), 1), speedmin) : 1;
 	return 745.28 * Math.pow(this.mass, -0.222) * speed * 50 / 1000;
 }
 
@@ -148,6 +151,9 @@ Cell.prototype.collisionCheck = function(bottomY,topY,rightX,leftX) {
 
 Cell.prototype.visibleCheck = function(box,centerPos) {
     // Checks if this cell is visible to the player
+    if (!this.mass) {
+        return false;
+    }
     return this.collisionCheck(box.bottomY,box.topY,box.rightX,box.leftX);
 }
 
