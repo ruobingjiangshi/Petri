@@ -71,11 +71,13 @@ Cell.prototype.addMass = function(n) {
     this.mass = Math.min(this.mass + n,this.owner.gameServer.config.playerMaxMass);
 }
 
-Cell.prototype.getSpeed = function() {
+Cell.prototype.getSpeed = function(gameServer) {
 	// Old formula: 5 + (20 * (1 - (this.mass/(70+this.mass))));
 	// Based on 50ms ticks. If updateMoveEngine interval changes, change 50 to new value
 	// (should possibly have a config value for this?)
-    var speed = this.speedModifier < 0 ? Math.min(1.5/(this.speedModifier*-0.1), 1) : 1;
+    var speedmult = -gameServer.gameMode.cellSpeedMultiplier;
+    var speedmin = gameServer.gameMode.cellSpeedLowest;
+    var speed = this.speedModifier < 0 ? Math.max(Math.min(1.5/(this.speedModifier*speedmult), 1), speedmin) : 1;
 	return 745.28 * Math.pow(this.mass, -0.222) * speed * 50 / 1000;
 }
 
@@ -161,7 +163,7 @@ Cell.prototype.calcMove = function(x2, y2, gameServer) {
     
     // Distance between mouse pointer and cell
     var dist = Math.sqrt( Math.pow(x2 - this.position.x, 2) +  Math.pow(y2 - this.position.y, 2) );
-    var speed = Math.min(this.getSpeed(),dist);
+    var speed = Math.min(this.getSpeed(gameServer),dist);
     
     var x1 = this.position.x + ( speed * Math.sin(angle) );
     var y1 = this.position.y + ( speed * Math.cos(angle) );

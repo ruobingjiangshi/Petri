@@ -5,6 +5,9 @@ function Mode() {
     this.packetLB = 49; // Packet id for leaderboard packet (49 = List, 50 = Pie chart)
     this.haveTeams = false; // True = gamemode uses teams, false = gamemode doesnt use teams
     
+    this.cellSpeedLowest = 0.1; // The lowest possible ejections can lower speed. If it's set to 1, ejections will not slow players.
+    this.cellSpeedMultiplier = 0.1; // Lower
+
     this.rankOne; // Current player that has the highest score
 }
 
