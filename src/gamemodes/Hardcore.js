@@ -31,6 +31,33 @@ Hardcore.prototype.leaderboardAddSort = function(player,leaderboard) {
     }
 }
 
+Hardcore.prototype.checkForWinner = function(gameServer) {
+    var deadplayercount = 0;
+    var playercount = 0;
+    for (var i = 0; i < gameServer.clients.length; i++) {
+        var client = gameServer.clients[i].playerTracker;
+        if ('_socket' in client.socket) {
+            playercount++;
+            if (this.dead.indexOf(client.socket._socket.remoteAddress) != -1) {
+                deadplayercount++;
+            }
+        }
+    }
+    if (playercount-deadplayercount < 2) {
+        console.log("[Game] Refreshing dead player list.");
+        for (var i = 0; i < gameServer.clients.length; i++) {
+            var client = gameServer.clients[i].playerTracker;
+            for (var j = 0; j < client.cells.length; j++) {
+                var cell = client.cells[j];
+                if (!cell.mass) {
+                    cell.onRemove();
+                }
+            }
+        }
+        this.dead = [];
+    }
+}
+
 // Override
 
 Hardcore.prototype.onCellAdd = function(cell) {
@@ -49,6 +76,7 @@ Hardcore.prototype.onCellRemove = function(cell) {
             }
         }
     }
+    this.checkForWinner(cell.owner.gameServer);
 }
 
 Hardcore.prototype.updateLB = function(gameServer) {
