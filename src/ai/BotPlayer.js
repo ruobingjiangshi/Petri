@@ -104,7 +104,9 @@ BotPlayer.prototype.update = function() { // Overrides the update function from 
         } else if (t == 1) { // Food
             this.food.push(check);
         } else if (t == 2) { // Virus
-        	this.predators.push(check);
+        	if (this.getDist(this.findNearest(check, this.cells), check) > 50) {
+        		this.predators.push(check);
+        	}
         } else if (t == 3) { // Ejected mass
             if (cell.mass > 20) {
                 this.food.push(check);
