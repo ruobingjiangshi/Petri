@@ -316,6 +316,10 @@ Cell.prototype.calcMovePhys = function(gameServer) {
 Cell.prototype.predatorsAlongPath = function(A, B, gameServer) { // Modified version of GameServer.getCellsInRange
     var list = new Array();
 
+    if (A.x === B.x && A.y === B.y) {
+        return list;
+    }
+
     var len = gameServer.nodesVirus.length + gameServer.nodesPlayer.length - 1;
     for (var i = 0;i < len;i++) {
 
