@@ -302,6 +302,20 @@ Cell.prototype.calcMovePhys = function(gameServer) {
 
 // Helper functions
 
+// thanks, stackoverflow http://stackoverflow.com/questions/849211/shortest-distance-between-a-point-and-a-line-segment
+function sqr(x) { return x * x }
+function dist2(v, w) { return sqr(v.x - w.x) + sqr(v.y - w.y) }
+function distToSegmentSquared(p, v, w) {
+  var l2 = dist2(v, w);
+  if (l2 == 0) return dist2(p, v);
+  var t = ((p.x - v.x) * (w.x - v.x) + (p.y - v.y) * (w.y - v.y)) / l2;
+  if (t < 0) return dist2(p, v);
+  if (t > 1) return dist2(p, w);
+  return dist2(p, { x: v.x + t * (w.x - v.x),
+                    y: v.y + t * (w.y - v.y) });
+}
+function distToSegment(p, v, w) { return Math.sqrt(distToSegmentSquared(p, v, w)); }
+
 Cell.prototype.predatorsAlongPath = function(A, B, gameServer) { // Modified version of GameServer.getCellsInRange
     var list = new Array();
 
@@ -333,8 +347,7 @@ Cell.prototype.predatorsAlongPath = function(A, B, gameServer) { // Modified ver
             }
         }
         var C = check.position;
-        var d = Math.abs((B.y - A.y) * C.x - (B.x - A.x) * C.y + B.x * A.y - B.y * A.x);
-        d /= this.getDist(A, B);
+        var d = distToSegment(C, A, B)
         var eatingRange = check.getSize() - this.getEatingRange();
         if (d > eatingRange) {
             continue;
