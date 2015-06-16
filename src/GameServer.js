@@ -679,13 +679,9 @@ GameServer.prototype.getCellsInRange = function(cell) {
         var dist = Math.sqrt( xs + ys );
 
         var eatingRange = cell.getSize() - check.getEatingRange(); // Eating range = radius of eating cell + 50% of the radius of the cell being eaten
-        if (dist > eatingRange) {
-            // Not in eating range
-            continue;
+        if (dist < eatingRange) {
+            list.push(check);
         }
-
-        // Add to list of cells nearby
-        list.push(check);
     }
     return list;
 };

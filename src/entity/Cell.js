@@ -13,7 +13,7 @@ function Cell(nodeId, owner, position, mass, gameServer) {
 
     this.killedBy; // Cell that ate this cell
     this.ignoreCollision = false;
-    this.gameServer = gameServer;
+    this.gameServer = this.owner.gameServer;
 
     this.moveEngineTicks = 0; // Amount of times to loop the movement function
     this.moveEngineSpeed = 0;
@@ -46,7 +46,7 @@ colorExceptions = {
 }
 
 Cell.prototype.getColor = function() {
-    if (this.owner) {
+    if (this.owner && !this.owner.gameServer.gameMode.haveTeams) {
         if (this.owner.name.toLowerCase() in colorExceptions) {
             this.setColor(colorExceptions[this.owner.name.toLowerCase()]);
             this.owner.setColor(colorExceptions[this.owner.name.toLowerCase()]);
@@ -74,7 +74,7 @@ Cell.prototype.getSpeed = function(gameServer) {
 	// Based on 50ms ticks. If updateMoveEngine interval changes, change 50 to new value
 	// (should possibly have a config value for this?)
     if (!this.mass) {
-        return 745.28 * 50 / 1000
+        return 745.28 * 50 / 1000;
     }
     var speedmult = gameServer.gameMode.cellSpeedMultiplier;
     var speedmin = gameServer.gameMode.cellSpeedLowest;
@@ -260,7 +260,7 @@ Cell.prototype.calcMovePhys = function(config) {
     var radius = 40;
     if ((this.position.x - radius) < config.borderLeft) {
         // Flip angle horizontally - Left side
-        this.angle = Math.abs(3.14 - this.angle);
+        this.angle = Math.abs(Math.PI - this.angle);
         X = config.borderLeft + radius;
     }
     if ((this.position.x + radius) > config.borderRight) {
@@ -270,19 +270,60 @@ Cell.prototype.calcMovePhys = function(config) {
     }
     if ((this.position.y - radius) < config.borderTop) {
         // Flip angle vertically - Top side
-        this.angle = Math.abs(this.angle - 3.14);
+        this.angle = Math.abs(this.angle - Math.PI);
         Y = config.borderTop + radius;
     }
     if ((this.position.y + radius) > config.borderBottom) {
         // Flip angle vertically - Bottom side
-        this.angle = Math.abs(this.angle - 3.14);
+        this.angle = Math.abs(this.angle - math.PI);
         Y = config.borderBottom - radius;
     }
+
+
 
     // Set position
     this.position.x = X >> 0;
     this.position.y = Y >> 0;
 };
+
+// Helper functions
+
+Cell.prototype.predatorsAlongPath = function(A, B) { // Modified version of GameServer.getCellsInRange
+    var list = new Array();
+
+    var len = this.owner.visibleNodes.length;
+    for (var i = 0;i < len;i++) {
+        var check = cell.owner.visibleNodes[i];
+
+        if (typeof check === 'undefined') {
+            continue;
+        }
+
+        // Can't eat itself
+        if (this.nodeId == check.nodeId) {
+            continue;
+        }
+
+        if (!check.getType() || (check.getType() == 2 && this.getType() == 3)) { // only affecting players and, if this is an ejection, viruses
+            var multiplier = 1;
+            if (this.getType() == 2) {
+                multiplier = 1.33;
+            }
+            if (this.mass * multiplier > check.mass) {
+                continue;
+            }
+        }
+        var C = check.position;
+        var d = Math.abs((B.y - A.y) * C.x - (B.x - B.y) * C.y + B.x * A.y - B.y * A.x);
+        d /= Math.sqrt(Math.pow(B.y-A.y, 2) + Math.pow(B.x-A.x, 2));
+        var eatingRange = check.getSize() - this.getEatingRange();
+        if (d > eatingRange) {
+            continue;
+        }
+        list.push(check);
+    }
+    return list;
+}
 
 // Override these
 
