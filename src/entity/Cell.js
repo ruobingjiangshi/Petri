@@ -296,18 +296,7 @@ Cell.prototype.calcMovePhys = function(gameServer) {
     var list = this.predatorsAlongPath(A, B, gameServer);
     if (list.length) {
         var check = this.closestPredator(A, list);
-
-        // Consume effect
-        if (!check.getType()) {
-            this.onConsume(check,gameServer);
-        }
-        else if (check.getType() == 2) {
-            check.feed(this, gameServer);
-        }
-
-        // Remove cell
-        this.setKiller(check);
-        gameServer.removeNode(this);
+        this.position = check.position;
     }
 };
 
