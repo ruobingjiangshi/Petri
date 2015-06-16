@@ -13,7 +13,7 @@ function Cell(nodeId, owner, position, mass, gameServer) {
 
     this.killedBy; // Cell that ate this cell
     this.ignoreCollision = false;
-    this.gameServer = this.owner.gameServer;
+    this.gameServer = gameServer;
 
     this.moveEngineTicks = 0; // Amount of times to loop the movement function
     this.moveEngineSpeed = 0;
@@ -247,7 +247,8 @@ Cell.prototype.calcMove = function(x2, y2, gameServer) {
     this.position.y = y1 >> 0;
 };
 
-Cell.prototype.calcMovePhys = function(config) {
+Cell.prototype.calcMovePhys = function(gameServer) {
+    var config = gameServer.config;
     // Movement for ejected cells
     var X = this.position.x + ( this.moveEngineSpeed * Math.sin(this.angle) );
     var Y = this.position.y + ( this.moveEngineSpeed * Math.cos(this.angle) );
@@ -275,25 +276,50 @@ Cell.prototype.calcMovePhys = function(config) {
     }
     if ((this.position.y + radius) > config.borderBottom) {
         // Flip angle vertically - Bottom side
-        this.angle = Math.abs(this.angle - math.PI);
+        this.angle = Math.abs(this.angle - Math.PI);
         Y = config.borderBottom - radius;
     }
 
-
+    var A = {
+        'x': this.position.x >> 0,
+        'y': this.position.y >> 0
+    }
+    var B = {
+        'x': X >> 0,
+        'y': Y >> 0
+    }
 
     // Set position
     this.position.x = X >> 0;
     this.position.y = Y >> 0;
+
+    var list = this.predatorsAlongPath(A, B, gameServer);
+    if (list.length) {
+        var check = this.closestPredator(A, list);
+
+        // Consume effect
+        if (!check.getType()) {
+            this.onConsume(check,gameServer);
+        }
+        else if (check.getType() == 2) {
+            check.feed(this, gameServer);
+        }
+
+        // Remove cell
+        this.setKiller(check);
+        gameServer.removeNode(this);
+    }
 };
 
 // Helper functions
 
-Cell.prototype.predatorsAlongPath = function(A, B) { // Modified version of GameServer.getCellsInRange
+Cell.prototype.predatorsAlongPath = function(A, B, gameServer) { // Modified version of GameServer.getCellsInRange
     var list = new Array();
 
-    var len = this.owner.visibleNodes.length;
+    var len = gameServer.nodesVirus.length + gameServer.nodesPlayer.length - 1;
     for (var i = 0;i < len;i++) {
-        var check = cell.owner.visibleNodes[i];
+
+        var check = i < gameServer.nodesVirus.length ? gameServer.nodesVirus[i]: gameServer.nodesPlayer[i - gameServer.nodesVirus.length];
 
         if (typeof check === 'undefined') {
             continue;
@@ -314,8 +340,8 @@ Cell.prototype.predatorsAlongPath = function(A, B) { // Modified version of Game
             }
         }
         var C = check.position;
-        var d = Math.abs((B.y - A.y) * C.x - (B.x - B.y) * C.y + B.x * A.y - B.y * A.x);
-        d /= Math.sqrt(Math.pow(B.y-A.y, 2) + Math.pow(B.x-A.x, 2));
+        var d = Math.abs((B.y - A.y) * C.x - (B.x - A.x) * C.y + B.x * A.y - B.y * A.x);
+        d /= this.getDist(A, B);
         var eatingRange = check.getSize() - this.getEatingRange();
         if (d > eatingRange) {
             continue;
@@ -323,6 +349,31 @@ Cell.prototype.predatorsAlongPath = function(A, B) { // Modified version of Game
         list.push(check);
     }
     return list;
+}
+
+Cell.prototype.closestPredator = function(point, list) { // Modified version of BotPlayer.findNearest   
+    // Check for nearest cell in list
+    var shortest = list[0];
+    var shortestDist = this.getDist(point,shortest.position);
+    for (i = 1; i < list.length; i++) {
+        var check = list[i];
+        var dist = this.getDist(point,check.position); 
+        if (shortestDist > dist) {
+            shortest = check;
+            shortestDist = dist;
+        }
+    }
+    return shortest;
+}
+
+Cell.prototype.getDist = function(A, B) {
+    var xs = B.x - A.x;
+    xs = xs * xs;
+
+    var ys = B.y - A.y;
+    ys = ys * ys;
+
+    return Math.sqrt( xs + ys );
 }
 
 // Override these

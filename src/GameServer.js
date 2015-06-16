@@ -448,7 +448,7 @@ GameServer.prototype.updateMoveEngine = function() {
 
         if (check.getMoveTicks() > 0) {
             // If the cell has enough move ticks, then move it
-            check.calcMovePhys(this.config);
+            check.calcMovePhys(this);
             if ((check.getType() == 3) && (this.nodesVirus.length < this.config.virusMaxAmount)) {
                 // Check for viruses
                 var v = this.getNearestVirus(check);
